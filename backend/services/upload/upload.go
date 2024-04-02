@@ -28,13 +28,18 @@ type AWSCredentials struct {
 }
 
 func main() {
+	PROJECT_ID := os.Getenv("PROJECT_ID")
+	BUCKET_REGION := os.Getenv("BUCKET_REGION")
+	BUCKET_ACCESS_KEY_ID := os.Getenv("BUCKET_ACCESS_KEY_ID")
+	BUCKET_SECRET_ACCESS_KEY := os.Getenv("BUCKET_SECRET_ACCESS_KEY")
+
 	fmt.Println("Executing build...")
 	publishLog("Build Started...")
 	config := AWSConfig{
-		Region: "your-region",
+		Region: BUCKET_REGION,
 		Credentials: AWSCredentials{
-			AccessKeyId:     "your-access-key-id",
-			SecretAccessKey: "your-secret-access-key",
+			AccessKeyId:     BUCKET_ACCESS_KEY_ID,
+			SecretAccessKey: BUCKET_SECRET_ACCESS_KEY,
 		},
 	}
 
@@ -70,7 +75,6 @@ func main() {
 		if err != nil {
 			return err
 		}
-		PROJECT_ID := os.Getenv("PROJECT_ID")
 
 		if !info.IsDir() {
 			file, err := os.Open(path)
