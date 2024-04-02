@@ -16,6 +16,8 @@ type App struct {
 }
 
 func RegisterAPIRoutes(r *mux.Router) {
+	r.HandleFunc("/deploy", deployHandler).Methods("POST")
+	r.HandleFunc("/status", statusHandler).Methods("GET")
 	r.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusOK)
 		w.Write([]byte("OK"))
