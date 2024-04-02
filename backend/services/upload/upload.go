@@ -14,6 +14,7 @@ import (
 )
 
 // var ctx = context.Background()
+var outDirPath = os.Getenv("OUT_DIR_PATH")
 
 type AWSConfig struct {
 	Region      string
@@ -51,8 +52,6 @@ func main() {
 	}
 
 	uploader := s3manager.NewUploader(sess)
-
-	outDirPath := "./output"
 
 	cmd := exec.Command("sh", "-c", fmt.Sprintf("cd %s && npm install && npm run build", outDirPath))
 	cmd.Stdout = os.Stdout
