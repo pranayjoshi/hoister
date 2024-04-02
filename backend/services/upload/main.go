@@ -12,15 +12,12 @@ import (
 	"github.com/aws/aws-sdk-go/aws/credentials"
 	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/s3/s3manager"
-	"github.com/go-redis/redis/v8"
 )
 
 var ctx = context.Background()
 
 func main() {
-	redisClient := redis.NewClient(&redis.Options{
-		Addr: "localhost:6379",
-	})
+	redisClient := RedisClient()
 
 	sess := session.Must(session.NewSession(&aws.Config{
 		Region: aws.String("us-west-2"),

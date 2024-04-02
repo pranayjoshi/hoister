@@ -1,4 +1,4 @@
-package upload
+package main
 
 import (
 	"github.com/go-redis/redis/v8"
