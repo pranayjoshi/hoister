@@ -1,7 +1,6 @@
 package main
 
 import (
-	"context"
 	"fmt"
 	"os"
 	"os/exec"
@@ -14,18 +13,42 @@ import (
 	"github.com/aws/aws-sdk-go/service/s3/s3manager"
 )
 
-var ctx = context.Background()
+// var ctx = context.Background()
+
+type AWSConfig struct {
+	Region      string
+	Credentials AWSCredentials
+}
+
+type AWSCredentials struct {
+	AccessKeyId     string
+	SecretAccessKey string
+}
 
 func main() {
+	fmt.Println("Executing build...")
+	publishLog("Build Started...")
+	config := AWSConfig{
+		Region: "your-region",
+		Credentials: AWSCredentials{
+			AccessKeyId:     "your-access-key-id",
+			SecretAccessKey: "your-secret-access-key",
+		},
+	}
 
-	sess := session.Must(session.NewSession(&aws.Config{
-		Region: aws.String("us-west-2"),
+	sess, err := session.NewSession(&aws.Config{
+		Region: aws.String(config.Region),
 		Credentials: credentials.NewStaticCredentials(
-			"accessKeyId",
-			"secretAccessKey",
+			config.Credentials.AccessKeyId,
+			config.Credentials.SecretAccessKey,
 			"",
 		),
-	}))
+	})
+	if err != nil {
+		publishLog("Error: " + err.Error())
+		fmt.Println("Error", err)
+		return
+	}
 
 	uploader := s3manager.NewUploader(sess)
 
@@ -35,7 +58,7 @@ func main() {
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr
 
-	err := cmd.Run()
+	err = cmd.Run()
 	if err != nil {
 		fmt.Println("Error", err)
 		return
