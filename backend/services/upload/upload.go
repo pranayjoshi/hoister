@@ -1,4 +1,4 @@
-package upload
+package main
 
 import (
 	"context"
@@ -24,9 +24,9 @@ func main() {
 
 	sess := session.Must(session.NewSession(&aws.Config{
 		Region: aws.String("us-west-2"),
-		Credentials: credentials.NewStaticCredentials(
-			os.Getenv("AWS_ACCESS_KEY_ID"),
-			os.Getenv("AWS_SECRET_ACCESS_KEY"),
+		Credentials: credentials.NewStatic(
+			"accessKeyId",
+			"secretAccessKey",
 			"",
 		),
 	}))
@@ -59,7 +59,7 @@ func main() {
 			defer file.Close()
 
 			_, err = uploader.Upload(&s3manager.UploadInput{
-				Bucket: aws.String("vercel-clone-outputs"),
+				Bucket: aws.String("hoister-outputs"),
 				Key:    aws.String(fmt.Sprintf("__outputs/%s/%s", "PROJECT_ID", strings.TrimPrefix(path, outDirPath))),
 				Body:   file,
 			})
