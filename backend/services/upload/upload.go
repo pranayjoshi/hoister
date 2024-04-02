@@ -17,11 +17,10 @@ import (
 var ctx = context.Background()
 
 func main() {
-	redisClient := RedisClient()
 
 	sess := session.Must(session.NewSession(&aws.Config{
 		Region: aws.String("us-west-2"),
-		Credentials: credentials.NewStatic(
+		Credentials: credentials.NewStaticCredentials(
 			"accessKeyId",
 			"secretAccessKey",
 			"",
