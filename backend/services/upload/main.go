@@ -87,7 +87,7 @@ func main() {
 			defer file.Close()
 
 			_, err = uploader.Upload(&s3manager.UploadInput{
-				Bucket: aws.String("hoister-outputs"),
+				Bucket: aws.String("hoister"),
 				Key:    aws.String(fmt.Sprintf("__outputs/%s/%s", PROJECT_ID, strings.TrimPrefix(path, outDirPath))),
 				Body:   file,
 			})
