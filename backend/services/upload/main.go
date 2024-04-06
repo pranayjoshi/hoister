@@ -31,7 +31,7 @@ type AWSCredentials struct {
 
 func main() {
 	// Create the "output" directory if it doesn't exist
-	outDirPath := filepath.Join(os.TempDir(), "output")
+	outDirPath := filepath.Join("/home/app", "output")
 	os.MkdirAll(outDirPath, 0755)
 	err := godotenv.Load()
 	if err != nil {
