@@ -13,10 +13,11 @@ import (
 	"github.com/aws/aws-sdk-go/aws/credentials"
 	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/s3/s3manager"
+	"github.com/joho/godotenv"
 )
 
-var dir, _ = filepath.Abs(filepath.Dir(os.Args[0]))
-var outDirPath = filepath.Join(dir, "output")
+// var dir, _ = filepath.Abs(filepath.Dir(os.Args[0]))
+// var outDirPath = filepath.Join(dir, "output")
 
 type AWSConfig struct {
 	Region      string
@@ -30,7 +31,13 @@ type AWSCredentials struct {
 
 func main() {
 	// Create the "output" directory if it doesn't exist
+	outDirPath := filepath.Join(os.TempDir(), "output")
 	os.MkdirAll(outDirPath, 0755)
+	err := godotenv.Load()
+	if err != nil {
+		fmt.Println("Error loading .env file")
+		return
+	}
 
 	fmt.Println("outDirPath: ", outDirPath)
 	PROJECT_ID := os.Getenv("PROJECT_ID")
