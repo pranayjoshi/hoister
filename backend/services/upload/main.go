@@ -7,6 +7,8 @@ import (
 	"path/filepath"
 	"strings"
 
+	"github.com/pranayjoshi/hoister/backend/services/upload/utils"
+
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/credentials"
 	"github.com/aws/aws-sdk-go/aws/session"
@@ -15,7 +17,8 @@ import (
 
 // var ctx = context.Background()
 
-var outDirPath = filepath.Join(filepath.Dir(os.Args[0]), "./outputs")
+var dir, _ = filepath.Abs(filepath.Dir(os.Args[0]))
+var outDirPath = filepath.Join(dir, "output")
 
 type AWSConfig struct {
 	Region      string
@@ -28,13 +31,13 @@ type AWSCredentials struct {
 }
 
 func main() {
+	fmt.Println("outDirPath: ", outDirPath)
 	PROJECT_ID := os.Getenv("PROJECT_ID")
 	BUCKET_REGION := os.Getenv("BUCKET_REGION")
 	BUCKET_ACCESS_KEY_ID := os.Getenv("BUCKET_ACCESS_KEY_ID")
 	BUCKET_SECRET_ACCESS_KEY := os.Getenv("BUCKET_SECRET_ACCESS_KEY")
-
 	fmt.Println("Executing build...")
-	publishLog("Build Started...")
+	utils.PublishLog("Build Started...")
 	config := AWSConfig{
 		Region: BUCKET_REGION,
 		Credentials: AWSCredentials{
@@ -52,7 +55,7 @@ func main() {
 		),
 	})
 	if err != nil {
-		publishLog("Error: " + err.Error())
+		utils.PublishLog("Error: " + err.Error())
 		fmt.Println("Error", err)
 		return
 	}
@@ -65,11 +68,11 @@ func main() {
 
 	err = cmd.Run()
 	if err != nil {
-		publishLog("Error: " + err.Error())
+		utils.PublishLog("Error: " + err.Error())
 		fmt.Println("Error", err)
 		return
 	}
-	publishLog("Starting to upload")
+	utils.PublishLog("Starting to upload")
 	err = filepath.Walk(outDirPath, func(path string, info os.FileInfo, err error) error {
 
 		if err != nil {
@@ -79,10 +82,10 @@ func main() {
 		if !info.IsDir() {
 			file, err := os.Open(path)
 			if err != nil {
-				publishLog("Error: " + err.Error())
+				utils.PublishLog("Error: " + err.Error())
 				return err
 			}
-			publishLog("uploading " + path)
+			utils.PublishLog("uploading " + path)
 
 			defer file.Close()
 
@@ -95,7 +98,7 @@ func main() {
 			if err != nil {
 				return err
 			}
-			publishLog("uploaded " + path)
+			utils.PublishLog("uploaded " + path)
 
 			fmt.Println("Successfully uploaded", path)
 		}
@@ -104,10 +107,10 @@ func main() {
 	})
 
 	if err != nil {
-		publishLog("Error: " + err.Error())
+		utils.PublishLog("Error: " + err.Error())
 		fmt.Println("Error", err)
 		return
 	}
-	publishLog("Done.. ")
+	utils.PublishLog("Done.. ")
 	fmt.Println("Done...")
 }
