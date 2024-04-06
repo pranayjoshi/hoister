@@ -8,7 +8,6 @@ RUN go mod download
 COPY . .
 
 RUN chmod +x main.sh
-RUN chmod +x main.go
 
 RUN go build -o main .
 

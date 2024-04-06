@@ -15,8 +15,6 @@ import (
 	"github.com/aws/aws-sdk-go/service/s3/s3manager"
 )
 
-// var ctx = context.Background()
-
 var dir, _ = filepath.Abs(filepath.Dir(os.Args[0]))
 var outDirPath = filepath.Join(dir, "output")
 
@@ -31,11 +29,21 @@ type AWSCredentials struct {
 }
 
 func main() {
+	// Create the "output" directory if it doesn't exist
+	os.MkdirAll(outDirPath, 0755)
+
 	fmt.Println("outDirPath: ", outDirPath)
 	PROJECT_ID := os.Getenv("PROJECT_ID")
 	BUCKET_REGION := os.Getenv("BUCKET_REGION")
 	BUCKET_ACCESS_KEY_ID := os.Getenv("BUCKET_ACCESS_KEY_ID")
 	BUCKET_SECRET_ACCESS_KEY := os.Getenv("BUCKET_SECRET_ACCESS_KEY")
+
+	// Check if the environment variables are set
+	if PROJECT_ID == "" || BUCKET_REGION == "" || BUCKET_ACCESS_KEY_ID == "" || BUCKET_SECRET_ACCESS_KEY == "" {
+		fmt.Println("Error: environment variables not set")
+		return
+	}
+
 	fmt.Println("Executing build...")
 	utils.PublishLog("Build Started...")
 	config := AWSConfig{
