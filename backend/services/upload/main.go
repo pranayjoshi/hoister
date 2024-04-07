@@ -5,7 +5,6 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
-	"strings"
 
 	"github.com/pranayjoshi/hoister/backend/services/upload/utils"
 
@@ -88,38 +87,8 @@ func main() {
 		return
 	}
 	utils.PublishLog("Starting to upload")
-	err = filepath.Walk(outDirPath, func(path string, info os.FileInfo, err error) error {
 
-		if err != nil {
-			return err
-		}
-
-		if !info.IsDir() {
-			file, err := os.Open(path)
-			if err != nil {
-				utils.PublishLog("Error: " + err.Error())
-				return err
-			}
-			utils.PublishLog("uploading " + path)
-
-			defer file.Close()
-
-			_, err = uploader.Upload(&s3manager.UploadInput{
-				Bucket: aws.String("hoister"),
-				Key:    aws.String(fmt.Sprintf("__outputs/%s/%s", PROJECT_ID, strings.TrimPrefix(path, outDirPath))),
-				Body:   file,
-			})
-
-			if err != nil {
-				return err
-			}
-			utils.PublishLog("uploaded " + path)
-
-			fmt.Println("Successfully uploaded", path)
-		}
-
-		return nil
-	})
+	utils.BundleFiles(outDirPath, uploader, PROJECT_ID)
 
 	if err != nil {
 		utils.PublishLog("Error: " + err.Error())
