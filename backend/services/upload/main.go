@@ -90,11 +90,6 @@ func main() {
 
 	utils.BundleFiles(outDirPath, uploader, PROJECT_ID)
 
-	if err != nil {
-		utils.PublishLog("Error: " + err.Error())
-		fmt.Println("Error", err)
-		return
-	}
 	utils.PublishLog("Done.. ")
 	fmt.Println("Done...")
 }
