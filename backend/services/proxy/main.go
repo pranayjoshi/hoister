@@ -10,7 +10,7 @@ import (
 )
 
 const (
-	BasePath = "https://us-east-2.console.aws.amazon.com/s3/buckets/hoister/__outputs"
+	BasePath = "https://hoister.s3.us-east-2.amazonaws.com/__outputs/"
 	Port     = "8000"
 )
 
@@ -26,7 +26,7 @@ func handler(w http.ResponseWriter, r *http.Request) {
 
 	// Custom Domain - DB Query
 
-	resolvesTo := BasePath + "/" + subdomain + "/"
+	resolvesTo := BasePath + subdomain
 	fmt.Println("Resolves to", resolvesTo)
 
 	target, err := url.Parse(resolvesTo)
@@ -35,9 +35,10 @@ func handler(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Internal server error", http.StatusInternalServerError)
 		return
 	}
+	fmt.Println("Target", target)
 	proxy := httputil.NewSingleHostReverseProxy(target)
 
-	r.URL.Path = modifyPath(r.URL.Path)
+	// r.URL.Path = modifyPath(r.URL.Path)
 	fmt.Println("Proxying to", r.URL)
 	proxy.ServeHTTP(w, r)
 }
