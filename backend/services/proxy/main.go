@@ -9,7 +9,7 @@ import (
 )
 
 const (
-	BasePath = "https://hoister-outputs.s3.ap-south-1.amazonaws.com/__outputs"
+	BasePath = "https://us-east-2.console.aws.amazon.com/s3/buckets/hoister/__outputs/"
 	Port     = "8000"
 )
 
