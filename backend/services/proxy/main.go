@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"log"
 	"net/http"
 	"net/http/httputil"
@@ -9,7 +10,7 @@ import (
 )
 
 const (
-	BasePath = "https://us-east-2.console.aws.amazon.com/s3/buckets/hoister/__outputs/"
+	BasePath = "https://us-east-2.console.aws.amazon.com/s3/buckets/hoister/__outputs"
 	Port     = "8000"
 )
 
@@ -25,17 +26,26 @@ func handler(w http.ResponseWriter, r *http.Request) {
 
 	// Custom Domain - DB Query
 
-	resolvesTo := BasePath + "/" + subdomain
+	resolvesTo := BasePath + "/" + subdomain + "/"
+	fmt.Println("Resolves to", resolvesTo)
 
-	target, _ := url.Parse(resolvesTo)
+	target, err := url.Parse(resolvesTo)
+	if err != nil {
+		log.Printf("Error parsing URL: %v", err)
+		http.Error(w, "Internal server error", http.StatusInternalServerError)
+		return
+	}
 	proxy := httputil.NewSingleHostReverseProxy(target)
 
 	r.URL.Path = modifyPath(r.URL.Path)
+	fmt.Println("Proxying to", r.URL)
 	proxy.ServeHTTP(w, r)
 }
 
 func modifyPath(path string) string {
-	if path == "/" {
+	if path == " /" || path == "/" {
+		return path + "/index.html"
+	} else if path == "/favicon.ico" {
 		return "/index.html"
 	}
 	return path
