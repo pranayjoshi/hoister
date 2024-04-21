@@ -10,44 +10,53 @@ import (
 )
 
 const (
-	BasePath = "https://hoister.s3.us-east-2.amazonaws.com/__outputs/"
-	Port     = "8000"
+	PORT      = "8000"
+	BASE_PATH = "https://hoister.s3.us-east-2.amazonaws.com/__outputs/"
 )
 
 func main() {
-	http.HandleFunc("/", handler)
-	log.Printf("Reverse Proxy Running on Port %s", Port)
-	log.Fatal(http.ListenAndServe(":"+Port, nil))
+	http.HandleFunc("/", handleRequest)
+	log.Printf("Reverse Proxy Running on port %s", PORT)
+	log.Fatal(http.ListenAndServe(":"+PORT, nil))
 }
 
-func handler(w http.ResponseWriter, r *http.Request) {
+func handleRequest(w http.ResponseWriter, r *http.Request) {
 	hostname := r.Host
 	subdomain := strings.Split(hostname, ".")[0]
 
 	// Custom Domain - DB Query
-
-	resolvesTo := BasePath + subdomain
-	fmt.Println("Resolves to", resolvesTo)
-
+	resolvesTo := fmt.Sprintf("%s%s", BASE_PATH, subdomain)
+	fmt.Println("Resolves to: ", resolvesTo)
 	target, err := url.Parse(resolvesTo)
 	if err != nil {
-		log.Printf("Error parsing URL: %v", err)
-		http.Error(w, "Internal server error", http.StatusInternalServerError)
+		log.Printf("Error parsing target URL: %v", err)
+		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
 		return
 	}
-	fmt.Println("Target", target)
-	proxy := httputil.NewSingleHostReverseProxy(target)
 
-	// r.URL.Path = modifyPath(r.URL.Path)
-	fmt.Println("Proxying to", r.URL)
+	proxy := httputil.NewSingleHostReverseProxy(target)
+	proxy.ModifyResponse = modifyResponse(r)
+	proxy.Director = func(req *http.Request) {
+		fmt.Println("Proxyaing to: ", req.URL.Host)
+		req.URL.Host = target.Host + "/__outputs/" + subdomain
+		fmt.Println("Proxyaing to: ", req.URL.Host)
+		req.URL.Scheme = target.Scheme
+		req.Host = target.Host
+		// req.URL.Path += ""
+		req.URL.Path = strings.TrimPrefix(req.URL.Path, "/")
+
+		fmt.Println("Proxyaaaing to: ", req.URL)
+	}
+	fmt.Println("Proxying to: ", target)
 	proxy.ServeHTTP(w, r)
 }
 
-func modifyPath(path string) string {
-	if path == " /" || path == "/" {
-		return path + "/index.html"
-	} else if path == "/favicon.ico" {
-		return "/index.html"
+func modifyResponse(r *http.Request) func(*http.Response) error {
+	return func(resp *http.Response) error {
+		url := r.URL.Path
+		if url == "/" {
+			resp.Header.Set("Location", "/index.html")
+		}
+		return nil
 	}
-	return path
 }
