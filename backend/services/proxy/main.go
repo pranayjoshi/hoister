@@ -58,13 +58,3 @@ func handleRequest(w http.ResponseWriter, r *http.Request) {
 	fmt.Println("Proxying to: ", target)
 	proxy.ServeHTTP(w, r)
 }
-
-func modifyResponse(r *http.Request) func(*http.Response) error {
-	return func(resp *http.Response) error {
-		url := r.URL.Path
-		if url == "/" {
-			resp.Header.Set("Location", "/index.html")
-		}
-		return nil
-	}
-}
