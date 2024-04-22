@@ -39,9 +39,14 @@ func handleRequest(w http.ResponseWriter, r *http.Request) {
 		resp.Header.Set("Content-Disposition", "inline")
 		return nil
 	}
+	// }
 	proxy.ModifyResponse = func(resp *http.Response) error {
 		if strings.HasSuffix(resp.Request.URL.Path, ".html") {
 			resp.Header.Set("Content-Type", "text/html")
+		} else if strings.HasSuffix(resp.Request.URL.Path, ".js") {
+			resp.Header.Set("Content-Type", "application/javascript")
+		} else if strings.HasSuffix(resp.Request.URL.Path, ".css") {
+			resp.Header.Set("Content-Type", "text/css")
 		}
 		return nil
 	}
@@ -51,7 +56,8 @@ func handleRequest(w http.ResponseWriter, r *http.Request) {
 		req.Host = target.Host
 		// req.URL.Path += ""
 		req.URL.Path = strings.TrimPrefix(req.URL.Path, "/")
-		req.URL.Path = "/__outputs/" + subdomain + "/index.html"
+		fmt.Println("Path: ", req.URL.Path, "Target Path: ", target.Path)
+		req.URL.Path = target.Path + "/" + req.URL.Path
 
 		fmt.Println("Proxyaaaing to: ", req.URL)
 	}
