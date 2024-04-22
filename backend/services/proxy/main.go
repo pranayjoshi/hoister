@@ -35,15 +35,23 @@ func handleRequest(w http.ResponseWriter, r *http.Request) {
 	}
 
 	proxy := httputil.NewSingleHostReverseProxy(target)
-	proxy.ModifyResponse = modifyResponse(r)
+	proxy.ModifyResponse = func(resp *http.Response) error {
+		resp.Header.Set("Content-Disposition", "inline")
+		return nil
+	}
+	proxy.ModifyResponse = func(resp *http.Response) error {
+		if strings.HasSuffix(resp.Request.URL.Path, ".html") {
+			resp.Header.Set("Content-Type", "text/html")
+		}
+		return nil
+	}
 	proxy.Director = func(req *http.Request) {
-		fmt.Println("Proxyaing to: ", req.URL.Host)
-		req.URL.Host = target.Host + "/__outputs/" + subdomain
-		fmt.Println("Proxyaing to: ", req.URL.Host)
+		req.URL.Host = target.Host
 		req.URL.Scheme = target.Scheme
 		req.Host = target.Host
 		// req.URL.Path += ""
 		req.URL.Path = strings.TrimPrefix(req.URL.Path, "/")
+		req.URL.Path = "/__outputs/" + subdomain + "/index.html"
 
 		fmt.Println("Proxyaaaing to: ", req.URL)
 	}
