@@ -53,6 +53,12 @@ func handleRequest(w http.ResponseWriter, r *http.Request) {
 		req.URL.Host = target.Host
 		req.URL.Scheme = target.Scheme
 		req.Host = target.Host
+
+		// Check if the path is empty or "/"
+		if req.URL.Path == "" || req.URL.Path == "/" {
+			req.URL.Path = "/index.html"
+		}
+
 		originalPath := strings.TrimPrefix(req.URL.Path, "/")
 		if originalPath == "favicon.ico" {
 			http.NotFound(w, req)
