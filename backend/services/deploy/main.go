@@ -12,6 +12,7 @@ import (
 	"github.com/aws/aws-sdk-go-v2/config"
 	"github.com/aws/aws-sdk-go-v2/credentials"
 	"github.com/aws/aws-sdk-go-v2/service/ecs"
+	"github.com/aws/aws-sdk-go-v2/service/ecs/types"
 	"github.com/go-redis/redis/v8"
 	"github.com/google/uuid"
 	"github.com/gorilla/mux"
@@ -68,8 +69,8 @@ func main() {
 }
 
 func handleProjectCreation(w http.ResponseWriter, r *http.Request) {
-	ECS_CLUSTER := ""
-	ECS_TASK := ""
+	ECS_CLUSTER := os.Getenv("ECS_CLUSTER")
+	ECS_TASK := os.Getenv("ECS_Task")
 	var req ProjectRequest
 	err := json.NewDecoder(r.Body).Decode(&req)
 	if err != nil {
@@ -85,20 +86,20 @@ func handleProjectCreation(w http.ResponseWriter, r *http.Request) {
 	_, err = ecsClient.RunTask(context.TODO(), &ecs.RunTaskInput{
 		Cluster:        aws.String(ECS_CLUSTER),
 		TaskDefinition: aws.String(ECS_TASK),
-		LaunchType:     "FARGATE",
+		LaunchType:     types.LaunchTypeFargate,
 		Count:          aws.Int32(1),
-		NetworkConfiguration: &ecs.NetworkConfiguration{
-			AwsvpcConfiguration: &ecs.AwsVpcConfiguration{
-				AssignPublicIp: aws.String("ENABLED"),
-				Subnets:        []string{"", "", ""},
-				SecurityGroups: []string{""},
+		NetworkConfiguration: &types.NetworkConfiguration{
+			AwsvpcConfiguration: &types.AwsVpcConfiguration{
+				AssignPublicIp: types.AssignPublicIpEnabled,
+				Subnets:        []string{os.Getenv("SUBNET_1"), os.Getenv("SUBNET_2"), os.Getenv("SUBNET_3")},
+				SecurityGroups: []string{os.Getenv("SECURITY_GROUPS")},
 			},
 		},
-		Overrides: &ecs.TaskOverride{
-			ContainerOverrides: []ecs.ContainerOverride{
+		Overrides: &types.TaskOverride{
+			ContainerOverrides: []types.ContainerOverride{
 				{
 					Name: aws.String("builder-image"),
-					Environment: []ecs.KeyValuePair{
+					Environment: []types.KeyValuePair{
 						{Name: aws.String("GIT_REPOSITORY__URL"), Value: aws.String(req.GitURL)},
 						{Name: aws.String("PROJECT_ID"), Value: aws.String(projectSlug)},
 					},
