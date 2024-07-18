@@ -17,6 +17,7 @@ import (
 	"github.com/google/uuid"
 	"github.com/gorilla/mux"
 	"github.com/gorilla/websocket"
+	"github.com/joho/godotenv"
 )
 
 // const (
@@ -39,11 +40,18 @@ type ProjectRequest struct {
 }
 
 func main() {
+	err := godotenv.Load()
+	if err != nil {
+		fmt.Println("Error loading .env file")
+		return
+	}
 	PORT := os.Getenv("RUN_PORT")
 	REDIS_ADDR := ""
-	AWS_REGION := ""
-	AWS_ACCESS_KEY := ""
-	AWS_SECRET_KEY := ""
+	AWS_REGION := os.Getenv("AWS_REGION")
+	AWS_ACCESS_KEY := os.Getenv("AWS_ACCESS_KEY_ID")
+	AWS_SECRET_KEY := os.Getenv("AWS_SECRET_ACCESS_KEY")
+
+	fmt.Println("PORT: ", AWS_REGION)
 
 	router := mux.NewRouter()
 	redisClient = redis.NewClient(&redis.Options{
@@ -98,7 +106,7 @@ func handleProjectCreation(w http.ResponseWriter, r *http.Request) {
 		Overrides: &types.TaskOverride{
 			ContainerOverrides: []types.ContainerOverride{
 				{
-					Name: aws.String("builder-image"),
+					Name: aws.String("hoister-upload-service-image"),
 					Environment: []types.KeyValuePair{
 						{Name: aws.String("GIT_REPOSITORY__URL"), Value: aws.String(req.GitURL)},
 						{Name: aws.String("PROJECT_ID"), Value: aws.String(projectSlug)},

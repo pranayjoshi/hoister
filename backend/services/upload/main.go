@@ -38,7 +38,7 @@ func main() {
 		return
 	}
 
-	fmt.Println("outDirPath: ", outDirPath)
+	// fmt.Println("outDirPath: ", outDirPath)
 	PROJECT_ID := os.Getenv("PROJECT_ID")
 	BUCKET_REGION := os.Getenv("BUCKET_REGION")
 	BUCKET_ACCESS_KEY_ID := os.Getenv("BUCKET_ACCESS_KEY_ID")
