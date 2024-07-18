@@ -11,6 +11,8 @@ require (
 
 require (
 	github.com/go-redis/redis/v8 v8.11.5
+	github.com/gorilla/mux v1.8.1
 	github.com/jmespath/go-jmespath v0.4.0 // indirect
 	github.com/joho/godotenv v1.5.1
+	github.com/rs/cors v1.11.0
 )
