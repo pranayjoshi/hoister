@@ -2,21 +2,33 @@ package utils
 
 import (
 	"context"
+	"log"
 	"os"
+	"sync"
 
 	"github.com/go-redis/redis/v8"
 )
 
-func redisClient() *redis.Client {
-	REDIS_ADDR := os.Getenv("REDIS_ADDR")
-	return redis.NewClient(&redis.Options{
-		Addr: REDIS_ADDR,
+var (
+	redisClient *redis.Client
+	once        sync.Once
+)
+
+func getRedisClient() *redis.Client {
+	once.Do(func() {
+		REDIS_ADDR := os.Getenv("REDIS_ADDR")
+		redisClient = redis.NewClient(&redis.Options{
+			Addr: REDIS_ADDR,
+		})
 	})
+	return redisClient
 }
 
-func PublishLog(log string) {
-	var ctx = context.Background()
-	PROJECT_ID := os.Getenv("PROJECT_ID")
-	publisher := redisClient()
-	publisher.Publish(ctx, "logs:"+PROJECT_ID, log)
+func PublishLog(projectID, logs string) {
+	publisher := getRedisClient()
+	if err := publisher.Publish(context.Background(), "logs:"+projectID, logs).Err(); err != nil {
+		log.Printf("Failed to publish log: %v", err)
+	} else {
+		log.Println("Log published successfully")
+	}
 }

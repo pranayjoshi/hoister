@@ -21,10 +21,10 @@ func BundleFiles(outDirPath string, uploader *s3manager.Uploader, PROJECT_ID str
 		if !info.IsDir() {
 			file, err := os.Open(path)
 			if err != nil {
-				PublishLog("Error: " + err.Error())
+				PublishLog(PROJECT_ID, "Error: "+err.Error())
 				return err
 			}
-			PublishLog("uploading " + path)
+			PublishLog(PROJECT_ID, "uploading "+path)
 
 			defer file.Close()
 
@@ -37,19 +37,19 @@ func BundleFiles(outDirPath string, uploader *s3manager.Uploader, PROJECT_ID str
 			if err != nil {
 				return err
 			}
-			PublishLog("uploaded " + path)
+			PublishLog(PROJECT_ID, "uploaded "+path)
 
-			fmt.Println("Successfully uploaded", path)
+			fmt.Println(PROJECT_ID, "Successfully uploaded", path)
 		}
 
 		return nil
 	})
 	if err != nil {
-		PublishLog("Error: " + err.Error())
+		PublishLog(PROJECT_ID, "Error: "+err.Error())
 		fmt.Println("Error", err)
 		return
 	}
-	PublishLog("Successfully uploaded archive")
+	PublishLog(PROJECT_ID, "Successfully uploaded archive")
 
 	fmt.Println("Successfully uploaded archive")
 }

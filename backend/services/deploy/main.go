@@ -152,10 +152,9 @@ func handleWebSocket(w http.ResponseWriter, r *http.Request) {
 	for {
 		messageType, p, err := conn.ReadMessage()
 		if err != nil {
-			log.Println(err)
+			log.Printf("Error reading message: %v\n", err)
 			return
 		}
-
 		var message struct {
 			Action  string `json:"action"`
 			Channel string `json:"channel"`
@@ -165,11 +164,10 @@ func handleWebSocket(w http.ResponseWriter, r *http.Request) {
 			log.Println(err)
 			continue
 		}
-
 		if message.Action == "subscribe" {
 			err = conn.WriteMessage(messageType, []byte(fmt.Sprintf("Joined %s", message.Channel)))
 			if err != nil {
-				log.Println(err)
+				log.Println("wad", err)
 				return
 			}
 		}

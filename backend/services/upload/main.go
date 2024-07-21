@@ -51,7 +51,7 @@ func main() {
 	}
 
 	fmt.Println("Executing build...")
-	utils.PublishLog("Build Started...")
+	utils.PublishLog(PROJECT_ID, "Build Started...")
 	config := AWSConfig{
 		Region: BUCKET_REGION,
 		Credentials: AWSCredentials{
@@ -69,7 +69,7 @@ func main() {
 		),
 	})
 	if err != nil {
-		utils.PublishLog("Error: " + err.Error())
+		utils.PublishLog(PROJECT_ID, "Error: "+err.Error())
 		fmt.Println("Error", err)
 		return
 	}
@@ -82,14 +82,14 @@ func main() {
 
 	err = cmd.Run()
 	if err != nil {
-		utils.PublishLog("Error: " + err.Error())
+		utils.PublishLog(PROJECT_ID, "Error: "+err.Error())
 		fmt.Println("Error", err)
 		return
 	}
-	utils.PublishLog("Starting to upload")
+	utils.PublishLog(PROJECT_ID, "Starting to upload")
 
 	utils.BundleFiles(outDirPath, uploader, PROJECT_ID)
 
-	utils.PublishLog("Done.. ")
+	utils.PublishLog(PROJECT_ID, "Done.. ")
 	fmt.Println("Done...")
 }
