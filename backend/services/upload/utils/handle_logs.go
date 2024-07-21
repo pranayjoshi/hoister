@@ -8,8 +8,9 @@ import (
 )
 
 func redisClient() *redis.Client {
+	REDIS_ADDR := os.Getenv("REDIS_ADDR")
 	return redis.NewClient(&redis.Options{
-		Addr: "localhost:6379",
+		Addr: REDIS_ADDR,
 	})
 }
 

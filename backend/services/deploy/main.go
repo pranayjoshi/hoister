@@ -46,7 +46,7 @@ func main() {
 		return
 	}
 	PORT := os.Getenv("RUN_PORT")
-	REDIS_ADDR := ""
+	REDIS_ADDR := os.Getenv("REDIS_ADDR")
 	AWS_REGION := os.Getenv("AWS_REGION")
 	AWS_ACCESS_KEY := os.Getenv("AWS_ACCESS_KEY_ID")
 	AWS_SECRET_KEY := os.Getenv("AWS_SECRET_ACCESS_KEY")
@@ -78,7 +78,7 @@ func main() {
 
 func handleProjectCreation(w http.ResponseWriter, r *http.Request) {
 	ECS_CLUSTER := os.Getenv("ECS_CLUSTER")
-	ECS_TASK := os.Getenv("ECS_Task")
+	ECS_TASK := os.Getenv("ECS_TASK")
 	var req ProjectRequest
 	err := json.NewDecoder(r.Body).Decode(&req)
 	if err != nil {
