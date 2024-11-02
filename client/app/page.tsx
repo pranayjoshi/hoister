@@ -6,20 +6,47 @@ import { GithubIcon } from "lucide-react"
 import Link from "next/link"
 import Image from "next/image"
 import { useState } from "react"
-import { useRouter } from "next/router"
+import { useRouter } from "next/navigation"
 
 export default function HomePage() {
   const [gitURL, setGitURL] = useState("")
+  const [userId, setUserID] = useState("")
+  const [projectId, setProjectID] = useState("")
+  const router = useRouter()
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     console.log(gitURL);
+
+    try {
+      const parsedURL = new URL(gitURL);
+      const pathSegments = parsedURL.pathname.split('/').filter(segment => segment);
+      console.log(pathSegments);
+      if (pathSegments.length >= 2) {
+        setUserID(pathSegments[0]);
+        setProjectID(pathSegments[1]);
+        console.log(userId);
+        console.log(projectId);
+        router.push(`/user/${userId}/dashboard`);
+      } else {
+        setUserID('');
+        setProjectID('');
+      }
+    } catch (error) {
+      console.error('Invalid URL:', error);
+      setUserID('');
+      setProjectID('');
+    }
+    
+    // 
     // Handle form submission
   };
+
   return (
     <div className="flex flex-col min-h-screen">
       <header className="px-4 lg:px-6 h-14 flex items-center">
         <Link className="flex items-center justify-center" href="/">
-        <Image src="/logo.png" alt="Logo" width={20} height={20} className="mr-2" />
+          <Image src="/logo.png" alt="Logo" width={20} height={20} className="mr-2" />
           <span className="font-bold text-md">Hoister</span>
         </Link>
         <nav className="ml-auto flex gap-4 sm:gap-6">
@@ -48,13 +75,13 @@ export default function HomePage() {
               </div>
               <div className="w-full max-w-sm space-y-2">
                 <form className="flex space-x-2" onSubmit={handleSubmit}>
-                <Input
-                  className="flex-1"
-                  placeholder="Enter GitHub URL"
-                  type="url"
-                  value={gitURL}
-                  onChange={(e) => setGitURL(e.target.value)}
-                />
+                  <Input
+                    className="flex-1"
+                    placeholder="Enter GitHub URL"
+                    type="url"
+                    value={gitURL}
+                    onChange={(e) => setGitURL(e.target.value)}
+                  />
                   <Button type="submit">Deploy</Button>
                 </form>
                 <p className="text-xs text-gray-500 dark:text-gray-400">
