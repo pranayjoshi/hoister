@@ -51,7 +51,7 @@ func main() {
 	AWS_ACCESS_KEY := os.Getenv("AWS_ACCESS_KEY_ID")
 	AWS_SECRET_KEY := os.Getenv("AWS_SECRET_ACCESS_KEY")
 
-	fmt.Println("PORT: ", AWS_REGION)
+	log.Println("PORT: ", REDIS_ADDR)
 
 	router := mux.NewRouter()
 	redisClient = redis.NewClient(&redis.Options{
@@ -175,7 +175,8 @@ func handleWebSocket(w http.ResponseWriter, r *http.Request) {
 }
 
 func initRedisSubscribe() {
-	pubsub := redisClient.PSubscribe(context.Background(), "logs:*")
+	pubsub := redisClient.PSubscribe(context.Background(), "*")
+	// log.Println()
 	defer pubsub.Close()
 
 	log.Println("Subscribed to logs....")
@@ -187,4 +188,5 @@ func initRedisSubscribe() {
 		// based on your WebSocket management strategy
 		log.Printf("Received message: %s", msg.Payload)
 	}
+
 }
