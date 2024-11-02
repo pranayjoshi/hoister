@@ -15,28 +15,20 @@ import (
 	"github.com/aws/aws-sdk-go-v2/service/ecs/types"
 	"github.com/go-redis/redis/v8"
 	"github.com/google/uuid"
+	socketio "github.com/googollee/go-socket.io"
 	"github.com/gorilla/mux"
-	"github.com/gorilla/websocket"
 	"github.com/joho/godotenv"
 )
 
-// const (
-
-// )
-
 var (
-	upgrader = websocket.Upgrader{
-		CheckOrigin: func(r *http.Request) bool {
-			return true
-		},
-	}
-	redisClient *redis.Client
-	ecsClient   *ecs.Client
+	redisClient  *redis.Client
+	ecsClient    *ecs.Client
+	socketServer *socketio.Server
 )
 
 type ProjectRequest struct {
-	GitURL string `json:"gitURL"`
-	Slug   string `json:"slug"`
+	GitURL      string `json:"gitURL"`
+	ProjectSlug string `json:"projectslug"`
 }
 
 func main() {
@@ -69,7 +61,7 @@ func main() {
 	ecsClient = ecs.NewFromConfig(cfg)
 
 	router.HandleFunc("/project", handleProjectCreation).Methods("POST")
-	go startWebSocketServer()
+	go startSocketIOServer()
 	go initRedisSubscribe()
 
 	log.Printf("API Server Running on port %s", PORT)
@@ -86,7 +78,8 @@ func handleProjectCreation(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	projectSlug := req.Slug
+	fmt.Println("Request: ", req)
+	projectSlug := req.ProjectSlug
 	if projectSlug == "" {
 		projectSlug = uuid.New().String()
 	}
@@ -133,60 +126,47 @@ func handleProjectCreation(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(response)
 }
 
-func startWebSocketServer() {
+func startSocketIOServer() {
 	SOCKET_PORT := os.Getenv("SOCKET_PORT")
-	router := mux.NewRouter()
-	router.HandleFunc("/ws", handleWebSocket)
-	log.Printf("WebSocket Server Running on port %s", SOCKET_PORT)
-	log.Fatal(http.ListenAndServe(":"+SOCKET_PORT, router))
-}
+	server := socketio.NewServer(nil)
 
-func handleWebSocket(w http.ResponseWriter, r *http.Request) {
-	conn, err := upgrader.Upgrade(w, r, nil)
-	if err != nil {
-		log.Println(err)
-		return
-	}
-	defer conn.Close()
+	server.OnConnect("/", func(s socketio.Conn) error {
+		s.SetContext("")
+		fmt.Println("connected:", s.ID())
+		return nil
+	})
 
-	for {
-		messageType, p, err := conn.ReadMessage()
-		if err != nil {
-			log.Printf("Error reading message: %v\n", err)
-			return
-		}
-		var message struct {
-			Action  string `json:"action"`
-			Channel string `json:"channel"`
-		}
-		err = json.Unmarshal(p, &message)
-		if err != nil {
-			log.Println(err)
-			continue
-		}
-		if message.Action == "subscribe" {
-			err = conn.WriteMessage(messageType, []byte(fmt.Sprintf("Joined %s", message.Channel)))
-			if err != nil {
-				log.Println("wad", err)
-				return
-			}
-		}
-	}
+	server.OnEvent("/", "subscribe", func(s socketio.Conn, channel string) {
+		fmt.Println("subscribe:", channel)
+		s.Join(channel)
+		s.Emit("message", fmt.Sprintf("Joined %s", channel))
+	})
+
+	server.OnError("/", func(s socketio.Conn, e error) {
+		fmt.Println("meet error:", e)
+	})
+
+	server.OnDisconnect("/", func(s socketio.Conn, reason string) {
+		fmt.Println("closed", reason)
+	})
+
+	go server.Serve()
+	defer server.Close()
+
+	http.Handle("/socket.io/", server)
+	log.Printf("Socket.IO server running on port %s", SOCKET_PORT)
+	log.Fatal(http.ListenAndServe(":"+SOCKET_PORT, nil))
 }
 
 func initRedisSubscribe() {
-	pubsub := redisClient.PSubscribe(context.Background(), "*")
-	// log.Println()
+	pubsub := redisClient.PSubscribe(context.Background(), "logs:*")
 	defer pubsub.Close()
 
 	log.Println("Subscribed to logs....")
 
 	ch := pubsub.Channel()
 	for msg := range ch {
-		// Broadcast message to all connected WebSocket clients
-		// This part is simplified and would need to be implemented
-		// based on your WebSocket management strategy
 		log.Printf("Received message: %s", msg.Payload)
+		socketServer.BroadcastToRoom("/", msg.Channel, "message", msg.Payload)
 	}
-
 }

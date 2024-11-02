@@ -16,10 +16,10 @@ var (
 
 func getRedisClient() *redis.Client {
 	once.Do(func() {
-		REDIS_URL := os.Getenv("REDIS_URL")
+		REDIS_URL := os.Getenv("REDIS_ADDR")
 		options, err := redis.ParseURL(REDIS_URL)
 		if err != nil {
-			log.Fatalf("Failed to parse Redis URL: %v", err)
+			log.Fatalf("Failed to parse Redis URL: %v %sdawdawd", err, REDIS_URL)
 		}
 		redisClient = redis.NewClient(options)
 	})
