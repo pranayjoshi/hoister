@@ -25,4 +25,4 @@ async function UploadProject(url: string, slug: string | null): Promise<any> {
     }
 }
 
-export default UploadProject;
+export { UploadProject };
