@@ -18,6 +18,7 @@ import (
 	socketio "github.com/googollee/go-socket.io"
 	"github.com/gorilla/mux"
 	"github.com/joho/godotenv"
+	"github.com/rs/cors"
 )
 
 var (
@@ -64,8 +65,18 @@ func main() {
 	go startSocketIOServer()
 	go initRedisSubscribe()
 
+	// Enable CORS
+	c := cors.New(cors.Options{
+		AllowedOrigins:   []string{"http://localhost:3001"}, // Adjust this to your client's origin
+		AllowedMethods:   []string{"GET", "POST", "PUT", "DELETE"},
+		AllowedHeaders:   []string{"Content-Type", "Authorization"},
+		AllowCredentials: true,
+	})
+
+	handler := c.Handler(router)
+
 	log.Printf("API Server Running on port %s", PORT)
-	log.Fatal(http.ListenAndServe(":"+PORT, router))
+	log.Fatal(http.ListenAndServe(":"+PORT, handler))
 }
 
 func handleProjectCreation(w http.ResponseWriter, r *http.Request) {
