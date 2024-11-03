@@ -7,27 +7,28 @@ import Link from "next/link"
 import Image from "next/image"
 import { useState } from "react"
 import { useRouter } from "next/navigation"
+import { useGitURL } from "../context/git_url_context"
 
 export default function HomePage() {
-  const [gitURL, setGitURL] = useState("")
+  const [gitURLInput, setGitURLInput] = useState("")
   const [userId, setUserID] = useState("")
   const [projectId, setProjectID] = useState("")
   const router = useRouter()
+  const { setGitURL } = useGitURL()
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    console.log(gitURL);
+    console.log(gitURLInput);
 
     try {
-      const parsedURL = new URL(gitURL);
+      const parsedURL = new URL(gitURLInput);
       const pathSegments = parsedURL.pathname.split('/').filter(segment => segment);
       console.log(pathSegments);
       if (pathSegments.length >= 2) {
         setUserID(pathSegments[0]);
         setProjectID(pathSegments[1]);
-        console.log(userId);
-        console.log(projectId);
-        router.push(`/user/${userId}/dashboard`);
+        setGitURL(gitURLInput);
+        router.push('/deploy');
       } else {
         setUserID('');
         setProjectID('');
@@ -37,9 +38,6 @@ export default function HomePage() {
       setUserID('');
       setProjectID('');
     }
-    
-    // 
-    // Handle form submission
   };
 
   return (
@@ -79,8 +77,8 @@ export default function HomePage() {
                     className="flex-1"
                     placeholder="Enter GitHub URL"
                     type="url"
-                    value={gitURL}
-                    onChange={(e) => setGitURL(e.target.value)}
+                    value={gitURLInput}
+                    onChange={(e) => setGitURLInput(e.target.value)}
                   />
                   <Button type="submit">Deploy</Button>
                 </form>
