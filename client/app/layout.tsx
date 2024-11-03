@@ -1,6 +1,7 @@
 import './globals.css'
 import { Inter } from 'next/font/google'
 import { GitURLProvider } from '../context/git_url_context'
+import { ProjectProvider } from '../context/project_context'
 
 const inter = Inter({ subsets: ['latin'] })
 
@@ -18,7 +19,9 @@ export default function RootLayout({
     <html lang="en">
       <body className={inter.className}>
         <GitURLProvider>
-          {children}
+          <ProjectProvider>
+            {children}
+          </ProjectProvider>
         </GitURLProvider>
       </body>
     </html>

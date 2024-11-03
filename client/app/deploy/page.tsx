@@ -1,27 +1,25 @@
-"use client"
+'use client'
 
 import { useState } from "react"
-import { useSearchParams } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { Label } from "@/components/ui/label"
 import Link from "next/link"
 import { useGitURL } from "../../context/git_url_context"
+import { useProject } from "../../context/project_context"
 import Image from "next/image"
 
 export default function DeployPage() {
-  const searchParams = useSearchParams()
   const { gitURL } = useGitURL()
-
-  const [projectName, setProjectName] = useState("")
-  const [username, setUsername] = useState("")
-  const [domain, setDomain] = useState("")
+  const { domain, setDomain, projectName, setProjectName, username, setUsername } = useProject()
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
     // Here you would typically send this data to your backend
+
     console.log({ gitURL, projectName, username, domain })
+    
     // For now, we'll just log the data
     alert("Deployment information submitted!")
   }

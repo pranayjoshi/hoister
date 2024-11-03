@@ -18,6 +18,7 @@ async function UploadProject(url: string, slug: string | null): Promise<any> {
         }
 
         const data = await response.json();
+        console.log('Project uploaded:', data);
         return data;
     } catch (error) {
         console.error('Error uploading project:', error);

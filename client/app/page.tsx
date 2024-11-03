@@ -11,8 +11,6 @@ import { useGitURL } from "../context/git_url_context"
 
 export default function HomePage() {
   const [gitURLInput, setGitURLInput] = useState("")
-  const [userId, setUserID] = useState("")
-  const [projectId, setProjectID] = useState("")
   const router = useRouter()
   const { setGitURL } = useGitURL()
 
@@ -25,18 +23,11 @@ export default function HomePage() {
       const pathSegments = parsedURL.pathname.split('/').filter(segment => segment);
       console.log(pathSegments);
       if (pathSegments.length >= 2) {
-        setUserID(pathSegments[0]);
-        setProjectID(pathSegments[1]);
         setGitURL(gitURLInput);
         router.push('/deploy');
-      } else {
-        setUserID('');
-        setProjectID('');
       }
     } catch (error) {
       console.error('Invalid URL:', error);
-      setUserID('');
-      setProjectID('');
     }
   };
 
