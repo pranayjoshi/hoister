@@ -1,11 +1,11 @@
 async function UploadProject(url: string, slug: string | null): Promise<any> {
     const requestBody = {
         gitURL: url,
-        slug: slug
+        ProjectSlug: slug
     };
 
     try {
-        const response = await fetch('http://localhost:8080/project', {
+        const response = await fetch('http://localhost:9000/project', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'

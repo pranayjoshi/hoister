@@ -1,3 +1,5 @@
+'use client'
+
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -14,16 +16,20 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { GithubIcon, MoreVertical } from "lucide-react";
+import { MoreVertical } from "lucide-react";
 import Link from "next/link";
+import { useProject } from "../../../../context/project_context";
+import Image from "next/image";
 
 export default function DashboardPage() {
+  const { projectName, projectSlug, outputURL } = useProject();
+
   return (
     <div className="flex flex-col min-h-screen">
       <header className="px-4 lg:px-6 h-14 flex items-center border-b">
         <Link className="flex items-center justify-center" href="/">
-          <GithubIcon className="h-6 w-6 mr-2" />
-          <span className="font-bold">Hoister</span>
+          <Image src="/logo.png" alt="Logo" width={20} height={20} className="mr-2" />
+          <span className="font-bold text-md">Hoister</span>
         </Link>
         <nav className="ml-auto flex gap-4 sm:gap-6">
           <Link
@@ -72,16 +78,16 @@ export default function DashboardPage() {
                 </TableHeader>
                 <TableBody>
                   <TableRow>
-                    <TableCell>My Awesome Project</TableCell>
+                    <TableCell>{projectName}</TableCell>
                     <TableCell>
                       <span className="inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium bg-green-100 text-green-800">
                         Live
                       </span>
                     </TableCell>
-                    <TableCell>2 hours ago</TableCell>
+                    <TableCell>Just now</TableCell>
                     <TableCell>
-                      <Link className="text-blue-500 hover:underline" href="#">
-                        https://my-awesome-project.hoister.com
+                      <Link className="text-blue-500 hover:underline" href={outputURL}>
+                        {outputURL}
                       </Link>
                     </TableCell>
                     <TableCell>

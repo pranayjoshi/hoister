@@ -9,19 +9,34 @@ import Link from "next/link"
 import { useGitURL } from "../../context/git_url_context"
 import { useProject } from "../../context/project_context"
 import Image from "next/image"
+import { UploadProject } from "@/api"
+import { useRouter } from "next/navigation"
 
 export default function DeployPage() {
   const { gitURL } = useGitURL()
-  const { domain, setDomain, projectName, setProjectName, username, setUsername } = useProject()
+  const router = useRouter()
+  const { domain, setDomain, projectName, setProjectName, username, setUsername, projectSlug, setProjectSlug, outputURL, setOutputURL } = useProject()
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    // Here you would typically send this data to your backend
-
     console.log({ gitURL, projectName, username, domain })
-    
-    // For now, we'll just log the data
-    alert("Deployment information submitted!")
+
+    try {
+      const response = await UploadProject(gitURL, domain)
+      console.log('Project uploaded successfully:', response)
+
+      // Set the projectSlug and outputURL in the context
+      setProjectSlug(response.data.projectSlug)
+      setOutputURL(response.data.url)
+      console.log('Project slug:', projectSlug)
+      console.log('Output URL:', outputURL)
+
+      alert("Deployment information submitted!")
+      router.push(`/user/${username}/dashboard`)
+    } catch (error) {
+      console.error('Error uploading project:', error)
+      alert("Failed to submit deployment information.")
+    }
   }
 
   return (
